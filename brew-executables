@@ -26,7 +26,7 @@ formula=$(echo $1 | tr '[:upper:]' '[:lower:]')
 		echo "No installed formula for $1"
 		exit 2
 	fi
-	version_in_use=$(echo $brew_info | grep "$HOMEBREW_PREFIX.*\*$" | sed -e "s|.*$formula/\([^ ]*\).*|\1|i")
+	version_in_use=$(echo "$brew_info" | grep "$HOMEBREW_PREFIX.*\*$" | sed -e "s|.*$formula/\([^ ]*\).*|\1|i")
 #fi
 	
 cd "$HOMEBREW_CELLAR/$formula/$version_in_use" 
