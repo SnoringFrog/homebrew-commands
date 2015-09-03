@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+if [ -z $1 ]; then
+	echo "This command requires a formula argument"
+	exit 1
+elif [ "$1" == "-h" ]; then
+	command_name=$(echo `basename $0` | sed 's/brew-//')
+	echo "Lists the commands associated with a given formula"
+	echo "usage: brew $command_name formula_name"
+	echo -e "\nExit codes:\n  0: No error\n  1: No argument supplied\n  2: Formula not installed"
+	exit 0
+fi
+
+formula=$(echo $1 | tr '[:upper:]' '[:lower:]')
+
+# if
+# TODO:
+#	Allow getting commands for a specific version of a formula
+#		version_in_use=(that version)
+# elif 
+#	Allow returning all commands regardless of versions
+#		Support both lumping all the unique command names into one list and separating commands by version
+# else # get version currently in use 
+	brew_info=$(brew info $formula 2> /dev/null)
+	if [ "$?" -ne 0 ]; then
+		echo "No installed formula for $1"
+		exit 2
+	fi
+	version_in_use=$(echo $brew_info | grep "$HOMEBREW_PREFIX.*\*$" | sed -e "s|.*$formula/\([^ ]*\).*|\1|i")
+#fi
+	
+cd "$HOMEBREW_CELLAR/$formula/$version_in_use" 
+for dir in `find . -type d -mindepth 1 -maxdepth 1 -name "bin"`; do
+	for file in `find "$dir" -type f -o -type l -perm +111`
+	do
+		# if file is not a symlink, add it to the list
+		if [ ! -L $file ]; then
+			filename=$(basename $file)
+			echo $filename
+			# find all symlinks in this dir that refer to this file, list them as links
+			synonyms=""
+			for link in `find . -lname $filename`; do
+				linkname=$(basename $link)
+				synonyms="$synonyms $linkname"
+				#echo -e "   $linkname -> $filename" # alternate output format
+			done
+			if [ -n "$synonyms" ]; then
+				echo "   synonyms:$synonyms"
+			fi
+		fi
+
+		# if file is a symlink to some other dir, just print it
+		if [[ "$(readlink $file)" == *"/"* ]]; then
+			filename=$(basename $file)
+			echo $filename
+		fi
+	done		
+	# TODO: Idenfify synonyms that don't point to the $HOMEBREW_CELLAR/$formula/bin directory
+	# if $file is file or link to file not in list	
+	#	add actual file to list
+	# when list is done use it to list just one and name the others as synonyms
+	# this might be better suited to ruby where I could leverage a hash to store what refers to what
+done
+exit 0
