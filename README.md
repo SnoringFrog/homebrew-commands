@@ -25,6 +25,21 @@ Returns a list of commands associated with an installed formula. Only considers 
 formula="formulaYouWant"; brew unlink $formula && brew link --verbose $formula | grep "$(brew --prefix)/bin"
 ```
 
+### Example
+
+```sh
+	$ brew executables lua
+	lua
+	   synonyms: lua-5.2 lua5.2
+	luac
+	   synonyms: luac-5.2 luac5.2
+	luarocks
+	luarocks5.2
+	luarocks-admin
+	luarocks-admin-5.2
+
+```
+
 ### Exit codes
 
 *  0: No error
