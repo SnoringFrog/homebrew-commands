@@ -2,7 +2,7 @@
 
 if [ -z $1 ]; then
 	echo "This command requires a formula argument"
-	exit 1
+	exit 64
 elif [ "$1" == "-h" ]; then
 	command_name=$(echo `basename $0` | sed 's/brew-//')
 	echo "Lists the commands associated with a given formula"
@@ -24,7 +24,7 @@ formula=$(echo $1 | tr '[:upper:]' '[:lower:]')
 	brew_info=$(brew info $formula 2> /dev/null)
 	if [ "$?" -ne 0 ]; then
 		echo "No installed formula for $1"
-		exit 2
+		exit 1
 	fi
 	version_in_use=$(echo "$brew_info" | grep "$HOMEBREW_PREFIX.*\*$" | sed -e "s|.*$formula/\([^ ]*\).*|\1|i")
 #fi
